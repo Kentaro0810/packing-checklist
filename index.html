@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="旅行、学校、部活動などの持ち物を用途別に管理できるチェックリスト" />
+  <title>持ち物チェックリスト</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <main class="app">
+    <header class="page-header">
+      <div>
+        <p class="badge">PACKING CHECKLIST</p>
+        <h1>持ち物チェックリスト</h1>
+        <p class="description">旅行、学校、部活動などの持ち物をリストごとに整理し、忘れ物を防ぎます。</p>
+      </div>
+      <a class="home-link" href="https://kentaro0810.github.io/">リンク集へ戻る</a>
+    </header>
+
+    <section class="summary-grid" aria-label="チェック状況">
+      <article class="summary-card main-summary"><p>準備済み</p><strong id="checkedSummary">0 / 0</strong><span id="progressMessage">リストを作成しましょう</span></article>
+      <article class="summary-card"><p>残り</p><strong id="remainingSummary">0個</strong><span>まだチェックしていない持ち物</span></article>
+      <article class="summary-card"><p>リスト</p><strong id="listCount">0件</strong><span>保存されている用途別リスト</span></article>
+    </section>
+
+    <section class="list-panel">
+      <div class="section-heading">
+        <div><p class="section-kicker">MY LISTS</p><h2>持ち物リスト</h2></div>
+        <button id="openListButton" class="primary-button" type="button">＋ 新しいリスト</button>
+      </div>
+      <div id="listTabs" class="list-tabs" role="tablist" aria-label="持ち物リストの選択"></div>
+      <div id="noLists" class="empty-state">
+        <span aria-hidden="true">🎒</span><h3>最初のリストを作成しましょう</h3><p>「修学旅行」「試合」「学校」など、用途別に持ち物を管理できます。</p>
+      </div>
+    </section>
+
+    <section id="checklistPanel" class="checklist-card hidden">
+      <div class="section-heading">
+        <div><p id="activeListCategory" class="section-kicker">CHECKLIST</p><h2 id="activeListName">リスト名</h2></div>
+        <div class="list-actions"><button id="editListButton" class="secondary-button" type="button">リストを編集</button><button id="deleteListButton" class="danger-button" type="button">リストを削除</button></div>
+      </div>
+
+      <div class="progress-track" aria-hidden="true"><div id="progressFill" class="progress-fill"></div></div>
+      <p id="progressDetail" class="progress-detail">0 / 0 準備済み</p>
+
+      <form id="itemForm" class="item-form">
+        <input id="itemName" type="text" maxlength="50" placeholder="持ち物を入力（例：ユニフォーム）" required />
+        <select id="itemCategory" aria-label="持ち物のカテゴリー">
+          <option value="服・身につける物">服・身につける物</option>
+          <option value="勉強・仕事">勉強・仕事</option>
+          <option value="衛生・生活用品">衛生・生活用品</option>
+          <option value="スポーツ用品">スポーツ用品</option>
+          <option value="電子機器">電子機器</option>
+          <option value="書類・貴重品">書類・貴重品</option>
+          <option value="その他">その他</option>
+        </select>
+        <input id="itemQuantity" type="number" min="1" max="99" value="1" inputmode="numeric" aria-label="数量" />
+        <button class="primary-button" type="submit">追加</button>
+      </form>
+
+      <div class="toolbar">
+        <input id="searchInput" type="search" placeholder="持ち物を検索" />
+        <select id="filterCategory" aria-label="カテゴリーで絞り込み"><option value="all">すべてのカテゴリー</option></select>
+        <button id="uncheckAllButton" class="secondary-button" type="button">チェックをすべて外す</button>
+        <button id="deleteCheckedButton" class="secondary-button" type="button">準備済みを削除</button>
+      </div>
+
+      <div id="categorySections" class="category-sections"></div>
+      <div id="noItems" class="empty-state compact"><span aria-hidden="true">✅</span><h3>持ち物を追加してください</h3></div>
+    </section>
+
+    <section class="template-card">
+      <div class="section-heading"><div><p class="section-kicker">TEMPLATES</p><h2>テンプレートから作成</h2></div></div>
+      <div class="template-grid">
+        <button class="template-button" type="button" data-template="school"><span>🏫</span><strong>学校</strong><small>筆記用具、教科書など</small></button>
+        <button class="template-button" type="button" data-template="soccer"><span>⚽</span><strong>サッカー・試合</strong><small>ユニフォーム、スパイクなど</small></button>
+        <button class="template-button" type="button" data-template="trip"><span>🧳</span><strong>旅行・宿泊</strong><small>着替え、洗面用品など</small></button>
+      </div>
+    </section>
+
+    <section class="data-card">
+      <h2>データ管理</h2>
+      <p>すべてのリストはこの端末に保存されます。JSON形式でバックアップできます。</p>
+      <div class="data-actions">
+        <button id="exportButton" class="secondary-button" type="button">バックアップを書き出す</button>
+        <label class="secondary-button file-label" for="importInput">バックアップを読み込む</label>
+        <input id="importInput" type="file" accept="application/json,.json" hidden />
+        <button id="resetAllButton" class="danger-button" type="button">全データを削除</button>
+      </div>
+      <p id="statusMessage" class="status-message" aria-live="polite"></p>
+    </section>
+  </main>
+
+  <dialog id="listDialog" class="list-dialog">
+    <form id="listForm" method="dialog">
+      <div class="dialog-heading"><div><p class="section-kicker">LIST SETTINGS</p><h2 id="dialogTitle">新しいリスト</h2></div><button id="closeDialogButton" class="icon-button" type="button" aria-label="閉じる">×</button></div>
+      <input id="listId" type="hidden" />
+      <label for="listNameInput">リスト名</label><input id="listNameInput" type="text" maxlength="40" placeholder="例：県大会の遠征" required />
+      <label for="listPurposeInput">用途・メモ（任意）</label><input id="listPurposeInput" type="text" maxlength="80" placeholder="例：2泊3日" />
+      <div class="dialog-actions"><button id="cancelButton" class="secondary-button" type="button">キャンセル</button><button class="primary-button" type="submit">保存する</button></div>
+    </form>
+  </dialog>
+
+  <script src="script.js"></script>
+</body>
+</html>
